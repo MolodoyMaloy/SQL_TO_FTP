@@ -128,6 +128,10 @@ def FTP_connect(ftp_server, user, password):
     ftp.login(user=user, passwd=password)
     print(ftp.login())
     ftp.encoding = "utf-8"
+    if ftp.passiveserver:
+        print('passive mode of data transfers ')
+    else:
+        print('active mode of data transfers ')
     show_ftp_files(ftp)
     return ftp
 
@@ -137,13 +141,20 @@ def show_ftp_files(ftp):
     data = ftp.retrlines('LIST')
     print(data)
     while (True):
-        flag = int(input('need browse dirs?(NO - 0, YES - 1) '))
+        flag = int(input('need browse dirs?(NO - 0, YES - 1, '
+                         'CREATE DIR - 2, DELETE DIR - 3) '))
         if flag==1:
             ftp.cwd(input('chose dir '))
             data = ftp.retrlines('LIST')
             print(data)
-        else:
+        elif flag==2:
+            ftp.mkd(input('write name of new dir '))
+        elif flag==3:
+            ftp.rmd(input('write dir name to delete '))
+        elif flag==0:
             break
+        else:
+            pass
 
 
 # загрузка файла на фтп сервер
@@ -167,11 +178,17 @@ def FTP_delete(file_name):
     ftp.delete(file_name)
 
 
+# переименование файла на фтп сервере
+def FTP_rename_a_file(fromname, toname):
+    ftp.rename(fromname, toname)
+
+
 # исполнение запроса к фтп серверу
 def FTP_query(ftp):
     while (True):
         flag = int(input('need work with ftp server? '
-                         '(0-to dirs, 1-upload, 2-download, 3-delete, 4-quit) '))
+                         '(0-to dirs, 1-upload, 2-download, '
+                         '3-delete, 4-rename a file, 5-quit) '))
         if flag == 0:
             show_ftp_files(ftp)
         elif flag == 1:
@@ -183,6 +200,9 @@ def FTP_query(ftp):
         elif flag == 3:
             FTP_delete(input('Write file name to delete with file extension '))
         elif flag == 4:
+            FTP_rename_a_file(input('Write previous name of file with file extension '),
+                              input('Write new name of file with file extension '))
+        elif flag == 5:
             ftp.quit()
             break
         else:
