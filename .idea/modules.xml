@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../../for_ftp/.idea/for_ftp.iml" filepath="$PROJECT_DIR$/../../../../for_ftp/.idea/for_ftp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../ftp/.idea/ftp.iml" filepath="$PROJECT_DIR$/../../../../ftp/.idea/ftp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/scriptik.iml" filepath="$PROJECT_DIR$/.idea/scriptik.iml" />
+    </modules>
+  </component>
+</project>
