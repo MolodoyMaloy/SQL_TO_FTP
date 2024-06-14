@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 from openpyxl import load_workbook
 from ftplib import FTP
+import json
 
 
 # подключаемся к серверу mysql и дб последовательно
@@ -84,6 +85,24 @@ def select_to_excel(query_result, querys_columns):
     wb.close()
 
 
+# Запись запроса в json файл, реализация именно такая в связи с работой метода, исполняющего sql запрос...
+# ...(он возвращает только значения получившейся таблички без названий столбцов):...
+# ...а без названий столбцов не получится внятной ,,словарной,, структуры json файла.
+def select_to_json(query, query_result, querys_columns):
+    strings_in_json = []
+    for i in range(len(query_result)):
+        new = {}
+        for j in range(len(querys_columns)):
+            new[querys_columns[j]] = query_result[i][j]
+        strings_in_json.append(new)
+    pre_json = {query: strings_in_json}
+    print(pre_json)
+    file = open(input('write path to your json file with file extension '), 'w')
+    json.dump(pre_json, file, indent=3)
+    file.close()
+
+
+# запись запроса в остальные файлы(.txt и тд)
 def select_to_file(query_result, querys_columns):
     file = open(input('write path to your file with file extension '), 'w')
     columns = ''
@@ -96,7 +115,7 @@ def select_to_file(query_result, querys_columns):
     file.close()
 
 
-# введение запроса типа SELECT к дб+запись запроса в эксель файл
+# введение запроса типа SELECT к дб+запись результата запроса в эксель, json или другой вид файла
 def execute_query_select(connection, query):
     cursor = connection.cursor()
     try:
@@ -109,20 +128,23 @@ def execute_query_select(connection, query):
         while(True):
             flag = int(input('write it in file?(NO - 0, '
                              'WRITE IN EXCEL FILE - 1, '
-                             'WRITE IN OTHER TYPE OF FILE - 2) '))
+                             'WRITE IN OTHER TYPE OF FILE - 2,'
+                             'WRITE IN JSON FILE - 3) '))
             if flag == 0:
                 return 0
             elif flag == 1:
-                select_to_excel(result,column_names)
+                select_to_excel(result, column_names)
             elif flag == 2:
                 select_to_file(result, column_names)
+            elif flag == 3:
+                select_to_json(query, result, column_names)
             else:
                 pass
     except Error as e:
         print(f"The error '{e}' occurred")
 
 
-# подключение к фтп
+# подключение к фтп, работа с JSON файлами возможна
 def FTP_connect(ftp_server, user, password):
     ftp = FTP(ftp_server)
     ftp.login(user=user, passwd=password)
@@ -229,3 +251,4 @@ ftp = FTP_connect(ftp_server=input('cin your FTP server '),
                     password=input('cin password '))
 
 FTP_query(ftp)
+
