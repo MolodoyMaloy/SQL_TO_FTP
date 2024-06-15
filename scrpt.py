@@ -4,8 +4,7 @@ from openpyxl import load_workbook
 from ftplib import FTP
 import json
 
-
-# подключаемся к серверу mysql и дб последовательно
+# подключаемся к серверу sql и дб последовательно
 def create_connection(host_name, user_name, user_password, db_name):
     connection = None
     try:
@@ -14,7 +13,7 @@ def create_connection(host_name, user_name, user_password, db_name):
             user=user_name,
             passwd=user_password,
         )
-        print("Connection to MySQL server successful")
+        print("Connection to SQL server successful")
         try:
             connection = mysql.connector.connect(
                 host=host_name,
@@ -22,7 +21,7 @@ def create_connection(host_name, user_name, user_password, db_name):
                 passwd=user_password,
                 database=db_name,
             )
-            print("Connection to MySQL DB successful")
+            print("Connection to SQL DB successful")
         except Error as e:
             print(f"The error '{e}' occurred")
     except Error as e:
@@ -90,7 +89,8 @@ def select_to_excel(query_result, querys_columns):
 # ...а без названий столбцов не получится внятной ,,словарной,, структуры json файла.
 def select_to_json(query, query_result, querys_columns):
     strings_in_json = []
-    for i in range(len(query_result)):
+    for i in range(len(query_result)):# заполнение словаря для JSON файла, где ключи-это названия столбцов(querys_coloumns),
+                                    # а значения по ключам-результат запроса(querys_result)
         new = {}
         for j in range(len(querys_columns)):
             new[querys_columns[j]] = query_result[i][j]
@@ -100,7 +100,6 @@ def select_to_json(query, query_result, querys_columns):
     file = open(input('write path to your json file with file extension '), 'w')
     json.dump(pre_json, file, indent=3)
     file.close()
-
 
 # запись запроса в остальные файлы(.txt и тд)
 def select_to_file(query_result, querys_columns):
@@ -189,9 +188,9 @@ def FTP_store(from_file, to_file):
 
 
 # скачивание файла с фтп сервера
-def FTP_retr(from_file, to_file):
-    file = open(to_file, 'wb')
-    ftp.retrbinary(f'RETR {from_file}', file.write)
+def FTP_retr(from_server, to_pc):
+    file = open(to_pc, 'wb')
+    ftp.retrbinary(f'RETR {from_server}', file.write)
     file.close()
 
 
@@ -218,7 +217,7 @@ def FTP_query(ftp):
                     input('Write uploaded file name with file extension '))
         elif flag == 2:
             FTP_retr(input('Write file name with file extension for download '),
-                    input('Write path to file for download with file extension '))
+                     input('Write path to file for download with file extension '))
         elif flag == 3:
             FTP_delete(input('Write file name to delete with file extension '))
         elif flag == 4:
@@ -234,6 +233,7 @@ def FTP_query(ftp):
 ##################################################################################################
 ##################################################################################################
 
+
 host_name = input('cin host_name sql server ')
 
 user_name = input('cin user_name ')
@@ -246,9 +246,9 @@ connection = create_connection(host_name, user_name, user_password, db_name)
 
 execute_query(connection, host_name, user_name, user_password)
 
+
 ftp = FTP_connect(ftp_server=input('cin your FTP server '),
                     user=input('cin user '),
                     password=input('cin password '))
 
 FTP_query(ftp)
-
